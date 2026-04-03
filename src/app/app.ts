@@ -1,5 +1,6 @@
 import express from "express";
 import type { Application } from "express";
+import todoRouter from "./todo/route.js";
 
 export function createExpressApp(): Application {
   const app = express();
@@ -14,6 +15,7 @@ export function createExpressApp(): Application {
   });
 
   // routes
+  app.use("/todos", todoRouter);
 
   return app;
 }
