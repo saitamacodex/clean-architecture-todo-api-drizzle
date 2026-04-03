@@ -6,6 +6,12 @@ export function createExpressApp(): Application {
 
   // middlewares
   app.use(express.json());
+  app.use((req, res, next) => {
+    console.log(
+      `_logging: ${req.method} ${req.originalUrl}, at ${new Date().toLocaleString()}`,
+    );
+    next();
+  });
 
   // routes
   app.get("/", (req, res) => {
