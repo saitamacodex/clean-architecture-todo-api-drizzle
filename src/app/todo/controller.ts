@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
-import { createTodoPayloadModel } from "./model.js";
+import { createTodoPayloadModel, deleteIdSchema } from "./model.js";
 import { db } from "../../db/db.js";
 import { todoTables } from "../../db/schema.js";
-import { Result } from "pg";
+import { eq, isNotNull } from "drizzle-orm";
 
 class TodoController {
   // create TODO
@@ -31,6 +31,57 @@ class TodoController {
     return res.status(201).json({
       message: "todo created.",
       id: result?.id,
+    });
+  }
+
+  // get all TODO
+  public async getAllTodo(req: Request, res: Response) {
+    // query DB and get all todo's
+    const getTodo = await db
+      .select({
+        id: todoTables.id,
+        title: todoTables.title,
+        description: todoTables.description,
+        isCompleted: todoTables.isCompleted,
+      })
+      .from(todoTables);
+    //   .where(isNotNull(todoTables.description));
+
+    // validaton
+    if (getTodo.length === 0) {
+      return res.status(404).json({ message: "No Items" });
+    }
+
+    return res.status(200).json({
+      todos: getTodo,
+    });
+  }
+
+  // delete todo by id
+  public async deleteById(req: Request, res: Response) {
+    const idValidate = await deleteIdSchema.safeParseAsync(req.params);
+
+    if (idValidate.error) {
+      return res.status(400).json({
+        message: "id Validation Failed",
+        error: idValidate.error.issues,
+      });
+    }
+    const { id } = idValidate.data;
+    const [deleteItem] = await db
+      .delete(todoTables)
+      .where(eq(todoTables.id, id))
+      .returning();
+
+    if (!deleteItem) {
+      return res.status(404).json({
+        message: `Todo with ID ${id} not found`,
+      });
+    }
+
+    return res.status(200).json({
+      message: "Deleted successfully",
+      deleteItem,
     });
   }
 }

@@ -15,3 +15,10 @@ export const createTodoPayloadModel = z
       .describe("if the todo item is completed or not"),
   })
   .strict();
+
+export const deleteIdSchema = z.object({
+  id: z.uuid().describe("enter id"),
+});
+
+// or this way
+// export const deleteIdSchema = z.string().uuid();
