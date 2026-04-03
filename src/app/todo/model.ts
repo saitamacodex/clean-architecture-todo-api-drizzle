@@ -21,3 +21,6 @@ export const createTodoPayloadModel = z
 export const deleteIdSchema = z.object({
   id: z.uuid().describe("enter id"),
 });
+
+// this takes existing schema and make all fields optional.
+export const updateTodoPaylodSchema = createTodoPayloadModel.partial();

@@ -1,5 +1,9 @@
 import type { Request, Response } from "express";
-import { createTodoPayloadModel, deleteIdSchema } from "./model.js";
+import {
+  createTodoPayloadModel,
+  deleteIdSchema,
+  updateTodoPaylodSchema,
+} from "./model.js";
 import { db } from "../../db/db.js";
 import { todoTables } from "../../db/schema.js";
 import { eq, isNotNull } from "drizzle-orm";
@@ -82,6 +86,45 @@ class TodoController {
     return res.status(200).json({
       message: "Deleted successfully",
       deleteItem,
+    });
+  }
+
+  // update TODO by id
+  public async updateTodoByID(req: Request, res: Response) {
+    // validation for id and body
+    const idValidate = await deleteIdSchema.safeParseAsync(req.params);
+    // validate the partial body
+    const bodyValidation = await updateTodoPaylodSchema.safeParseAsync(
+      req.body,
+    );
+
+    if (!idValidate.success || !bodyValidation.success) {
+      return res.status(400).json({
+        message: "Update Validation Failed",
+        errors: {
+          params: idValidate.error?.issues,
+          body: bodyValidation.error?.issues,
+        },
+      });
+    }
+
+    const { id } = idValidate.data;
+    // Drizzle handles the partial object automatically
+    const updateData = bodyValidation.data;
+    const [updateItem] = await db
+      .update(todoTables)
+      .set(updateData)
+      .where(eq(todoTables.id, id))
+      .returning();
+
+    if (!updateItem) {
+      return res.status(404).json({
+        message: `Todo with ID ${id} not found`,
+      });
+    }
+    return res.status(200).json({
+      message: "Successfully Updated.",
+      updateItem,
     });
   }
 }

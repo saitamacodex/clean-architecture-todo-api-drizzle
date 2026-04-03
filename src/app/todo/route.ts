@@ -11,5 +11,6 @@ router.delete(
   "/delete-item/:id",
   todoController.deleteById.bind(todoController),
 );
+router.put("/update-item", todoController.updateTodoByID.bind(todoController));
 
 export default router;
