@@ -14,11 +14,6 @@ export function createExpressApp(): Application {
   });
 
   // routes
-  app.get("/", (req, res) => {
-    res.status(200).json({
-      message: "Express setup is done",
-    });
-  });
 
   return app;
 }
