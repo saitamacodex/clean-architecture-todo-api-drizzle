@@ -11,7 +11,7 @@ router.delete(
   "/delete-item/:id",
   todoController.deleteById.bind(todoController),
 );
-router.put(
+router.patch(
   "/update-item/:id",
   todoController.updateTodoByID.bind(todoController),
 );
