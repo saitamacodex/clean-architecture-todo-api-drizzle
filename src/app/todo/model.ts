@@ -16,9 +16,8 @@ export const createTodoPayloadModel = z
   })
   .strict();
 
+// export const deleteIdSchema = z.string().uuid(); (another way)
+// Expects { id: "..." }
 export const deleteIdSchema = z.object({
   id: z.uuid().describe("enter id"),
 });
-
-// or this way
-// export const deleteIdSchema = z.string().uuid();
