@@ -20,6 +20,8 @@ A production-ready TODO API built using Clean Architecture principles with Drizz
 - Database: PostgreSQL
 - Validation: Zod
 
+### Project Structure
+
 <pre>
 TODO_TS/
 ├── node_modules/
