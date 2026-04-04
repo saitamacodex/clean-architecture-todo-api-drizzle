@@ -19,10 +19,3 @@ A production-ready TODO API built using Clean Architecture principles with Drizz
 - Database: PostgreSQL
 - Validation: Zod
 
-
-### ⚙️ Getting Started
-
-`
-git clone https://github.com/saitamacodex/clean-architecture-todo-api-drizzle.git
-cd clean-architecture-todo-api-drizzle
-`
