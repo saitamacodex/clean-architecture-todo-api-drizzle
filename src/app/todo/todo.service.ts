@@ -36,7 +36,7 @@ class TodoService {
   }
 
   // get all TODO
-  public async getAllTodo(req: Request, res: Response) {
+  public async getAllTodo() {
     // query DB and get all todo's
     const getTodo = await db
       .select({
@@ -50,23 +50,20 @@ class TodoService {
 
     // validaton
     if (getTodo.length === 0) {
-      return res.status(404).json({ message: "No Items" });
+      throw ApiError.NOT_FOUND("Items Not Found");
     }
-
-    return res.status(200).json({
-      todos: getTodo,
-    });
+    return getTodo;
   }
 
   // delete todo by id
-  public async deleteById(req: Request, res: Response) {
-    const idValidate = await deleteIdSchema.safeParseAsync(req.params);
+  public async deleteById(idParam: unknown) {
+    const idValidate = await deleteIdSchema.safeParseAsync(idParam);
 
     if (idValidate.error) {
-      return res.status(400).json({
-        message: "id Validation Failed",
-        error: idValidate.error.issues,
-      });
+      throw ApiError.BAD_REQUEST(
+        "id Validation Failed",
+        idValidate.error.issues,
+      );
     }
     const { id } = idValidate.data;
     const [deleteItem] = await db
@@ -75,33 +72,23 @@ class TodoService {
       .returning();
 
     if (!deleteItem) {
-      return res.status(404).json({
-        message: `Todo with ID ${id} not found`,
-      });
+      throw ApiError.NOT_FOUND(`Todo with ID ${id} not found`);
     }
 
-    return res.status(200).json({
-      message: "Deleted successfully",
-      deleteItem,
-    });
+    return deleteItem;
   }
 
   // update TODO by id
-  public async updateTodoByID(req: Request, res: Response) {
+  public async updateTodoByID(idParam: unknown, reqBody: unknown) {
     // validation for id and body
-    const idValidate = await deleteIdSchema.safeParseAsync(req.params);
+    const idValidate = await deleteIdSchema.safeParseAsync(idParam);
     // validate the partial body
-    const bodyValidation = await updateTodoPaylodSchema.safeParseAsync(
-      req.body,
-    );
+    const bodyValidation = await updateTodoPaylodSchema.safeParseAsync(reqBody);
 
     if (!idValidate.success || !bodyValidation.success) {
-      return res.status(400).json({
-        message: "Update Validation Failed",
-        errors: {
-          params: idValidate.error?.issues,
-          body: bodyValidation.error?.issues,
-        },
+      throw ApiError.BAD_REQUEST("Update Validation Failed", {
+        params: idValidate.error?.issues,
+        body: bodyValidation.error?.issues,
       });
     }
 
@@ -115,14 +102,9 @@ class TodoService {
       .returning();
 
     if (!updateItem) {
-      return res.status(404).json({
-        message: `Todo with ID ${id} not found`,
-      });
+      throw ApiError.NOT_FOUND(`Todo with ID ${id} not found`);
     }
-    return res.status(200).json({
-      message: "Successfully Updated.",
-      updateItem,
-    });
+    return updateItem;
   }
 }
 
