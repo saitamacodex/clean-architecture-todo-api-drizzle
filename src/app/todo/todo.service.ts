@@ -3,23 +3,22 @@ import {
   createTodoPayloadModel,
   deleteIdSchema,
   updateTodoPaylodSchema,
-} from "./model.js";
+} from "./todo.schema.js";
 import { db } from "../../db/db.js";
 import { todoTables } from "../../db/schema.js";
 import { eq, isNotNull } from "drizzle-orm";
+import ApiError from "../../utils/apiError.js";
 
-class TodoController {
+class TodoService {
   // create TODO
-  public async createTodo(req: Request, res: Response) {
-    const validationResult = await createTodoPayloadModel.safeParseAsync(
-      req.body,
-    );
+  public async createTodo(body: unknown) {
+    const validationResult = await createTodoPayloadModel.safeParseAsync(body);
     // if validation fails, return error response
     if (validationResult.error) {
-      return res.status(400).json({
-        message: "Body Validation Failed",
-        error: validationResult.error.issues,
-      });
+      throw ApiError.BAD_REQUEST(
+        "Body Validation Failed",
+        validationResult.error?.issues,
+      );
     }
     // if validation succeeds insert into DB
     const { title, description, isCompleted } = validationResult.data;
@@ -32,10 +31,8 @@ class TodoController {
       })
       .returning({ id: todoTables.id });
 
-    return res.status(201).json({
-      message: "todo created.",
-      id: result?.id,
-    });
+    // return the result
+    return result;
   }
 
   // get all TODO
@@ -129,4 +126,4 @@ class TodoController {
   }
 }
 
-export default TodoController;
+export default TodoService;
