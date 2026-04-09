@@ -9,8 +9,8 @@ import {
 import { asyncHandler } from "../../utils/asyncHandler.js";
 const router: Router = express.Router();
 
-router.post("/add-todo", createItem);
-router.get("/all-todo", getAllItems);
+router.post("/add-todo", asyncHandler(createItem));
+router.get("/all-todo", asyncHandler(getAllItems));
 router.delete("/delete-item/:id", asyncHandler(deleteItem));
 router.patch("/update-item/:id", asyncHandler(updateItem));
 
